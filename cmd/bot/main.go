@@ -21,21 +21,8 @@ var (
 	rdb *redis.Client
 )
 
-func init() {
-	redisURL := os.Getenv("REDIS_URL")
-	opt, err := redis.ParseURL(redisURL)
-	if err != nil {
-		panic(err)
-	}
-	rdb = redis.NewClient(opt)
-}
-func SetGroupLanguage(groupID string, lang string) error {
-	return rdb.Set(ctx, groupID+":lang", lang, 0).Err()
-}
-func GetGroupLanguage(groupID string) (string, error) {
-	return rdb.Get(ctx, groupID+":lang").Result()
-}
 func main() {
+
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️ 未偵測到 .env 檔案，將直接使用系統環境變數")
 	} else {
@@ -45,7 +32,6 @@ func main() {
 	token := os.Getenv("LINE_CHANNEL_ACCESS_TOKEN")
 	azureKey := os.Getenv("AZURE_API_KEY")
 	azureRegion := os.Getenv("AZURE_API_REGION")
-
 	if secret == "" || token == "" || azureKey == "" || azureRegion == "" {
 		if secret == "" {
 			log.Println("LINE_CHANNEL_SECRET 未設定")
@@ -60,20 +46,21 @@ func main() {
 			log.Println("AZURE_API_REGION 未設定")
 		}
 	}
-
-	// 初始化 LINE Bot 實體
+	// 初始化 Redis 資料庫
+	rdb := repository.NewRedisClient()
+	repo := repository.NewRedisRepository(rdb)
+	// 初始化 Azure 翻譯引擎
+	trans := translator.NewAzureTranslator(azureKey, azureRegion)
+	// 初始化 LINE Bot
 	bot, err := linebot.New(secret, token)
 	if err != nil {
 		log.Fatal("LINE Bot 初始化失敗: ", err)
 	}
-	repo := repository.NewMemoryRepository()
-
-	trans := translator.NewAzureTranslator(azureKey, azureRegion)
-
+	// 依賴注入
 	cmdService := service.NewCommandService(repo)
 	transService := service.NewTranslationService(repo, trans)
 
-	// 4. 初始化接收層 (Handler)
+	// 初始化接收層 (Handler)
 	lineHandler := handler.NewLineHandler(bot, cmdService, transService)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
