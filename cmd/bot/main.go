@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -12,8 +13,28 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/line/line-bot-sdk-go/v8/linebot"
+	"github.com/redis/go-redis/v9"
 )
 
+var (
+	ctx = context.Background()
+	rdb *redis.Client
+)
+
+func init() {
+	redisURL := os.Getenv("REDIS_URL")
+	opt, err := redis.ParseURL(redisURL)
+	if err != nil {
+		panic(err)
+	}
+	rdb = redis.NewClient(opt)
+}
+func SetGroupLanguage(groupID string, lang string) error {
+	return rdb.Set(ctx, groupID+":lang", lang, 0).Err()
+}
+func GetGroupLanguage(groupID string) (string, error) {
+	return rdb.Get(ctx, groupID+":lang").Result()
+}
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️ 未偵測到 .env 檔案，將直接使用系統環境變數")
