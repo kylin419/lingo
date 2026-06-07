@@ -1,0 +1,22 @@
+# Go 執行檔 (避免將編譯出的 bot_app 丟進 GitHub)
+bot_app
+bot_app.exe
+
+# 依賴目錄
+vendor/
+
+# 環境變數檔案
+.env
+
+# IDE 與編輯器產生的檔案
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 作業系統暫存檔
+.DS_Store
+Thumbs.db
+
+# 記錄檔 (如果程式運作時會產出 bot.log)
+*.log
