@@ -7,7 +7,7 @@ vendor/
 
 # 環境變數檔案
 .env
-
+.env.example
 # IDE 與編輯器產生的檔案
 .idea/
 .vscode/

@@ -2,11 +2,13 @@ services:
   - type: web
     name: line-bot
     env: go
-    buildCommand: "./bot_app"
+    # 明確指定編譯指令的路徑
+    buildCommand: "go build -o bot_app ./cmd/bot/main.go"
+    # 指定執行檔的啟動路徑
     startCommand: "./bot_app"
     envVars:
       - key: LINE_CHANNEL_SECRET
-        sync: false # 從 Render 後台設定
+        sync: false
       - key: LINE_CHANNEL_ACCESS_TOKEN
         sync: false
       - key: AZURE_API_KEY
