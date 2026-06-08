@@ -47,7 +47,7 @@ func (s *TranslationService) TranslateMessage(sourceID string, text string) (str
 	// 取出目標語言設定
 	langs, err := s.repo.GetLanguages(sourceID)
 	if err != nil || len(langs) == 0 {
-		return "", nil
+		return "⚠️ 請注意，您還沒設定翻譯語言喔！請輸入 `$set [語言1] [語言2]` 來進行設定。", nil
 	}
 
 	// 執行翻譯
