@@ -154,14 +154,14 @@ func NewCommandService(repo repository.GroupRepository) *CommandService {
 }
 
 func (s *CommandService) HandleSetCommand(sourceID, text string) string {
-	argsStr := strings.TrimSpace(strings.TrimPrefix(text, "$set"))
+	input := strings.ReplaceAll(text, ",", " ")
+	argsStr := strings.TrimSpace(strings.TrimPrefix(input, "$set"))
 	if argsStr == "" {
 		return generateHelpMessage("請提供語言代碼！")
 	}
 
 	// 使用 strings.Fields 可以自動忽略多餘的空白字元
 	langs := strings.Fields(argsStr)
-
 	var validLangs []string
 	var invalidLangs []string
 

@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"line-translate-bot/pkg/crypto"
 	"os"
-	"strings"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -50,37 +50,35 @@ func (r *RedisRepository) GetGroupLanguage(groupID string) (string, error) {
 }
 
 func (r *RedisRepository) SaveLanguages(sourceID string, langs []string) error {
-	key := []byte(os.Getenv("ENCRYPTION_KEY"))
-
-	// 將 []string 轉為一個單一字串 (例如用逗號分隔)
-	// 這裡我們直接用 fmt.Sprint 或是 strings.Join，根據你的需求
-	langsStr := strings.Join(langs, ",")
-
-	cipherText, err := crypto.Encrypt([]byte(langsStr), key)
+	// 將陣列轉為 JSON 字串
+	data, err := json.Marshal(langs)
 	if err != nil {
 		return err
 	}
-
+	// 加密 JSON 字串
+	key := []byte(os.Getenv("ENCRYPTION_KEY"))
+	cipherText, err := crypto.Encrypt(data, key)
+	if err != nil {
+		return err
+	}
 	return r.rdb.Set(r.ctx, sourceID+":langs", cipherText, 0).Err()
 }
 
 // GetLanguages 讀取該群組支援的語言清單
 func (r *RedisRepository) GetLanguages(sourceID string) ([]string, error) {
-	key := []byte(os.Getenv("ENCRYPTION_KEY"))
-
 	encryptedData, err := r.rdb.Get(r.ctx, sourceID+":langs").Bytes()
-	if err == redis.Nil {
-		return []string{}, nil
-	}
 	if err != nil {
 		return nil, err
 	}
 
+	key := []byte(os.Getenv("ENCRYPTION_KEY"))
 	plainText, err := crypto.Decrypt(encryptedData, key)
 	if err != nil {
 		return nil, err
 	}
 
-	langsStr := string(plainText)
-	return strings.Split(langsStr, ","), nil
+	// 從 JSON 還原回 []string
+	var langs []string
+	err = json.Unmarshal(plainText, &langs)
+	return langs, err
 }
