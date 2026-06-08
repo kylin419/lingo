@@ -49,12 +49,15 @@ func (a *AzureVision) ExtractTextFromImage(imageBytes []byte) (string, error) {
 	req.Header.Set("Content-Type", "application/octet-stream")
 
 	resp, err := a.client.Do(req)
-	if err != nil || (resp.StatusCode != 202 && resp.StatusCode != 200) {
-		return "", fmt.Errorf("上傳失敗，狀態碼: %d", resp.StatusCode)
+
+	if err != nil {
+		return "", fmt.Errorf("HTTP 請求失敗: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 202 && resp.StatusCode != 200 {
+		return "", fmt.Errorf("API 回傳異常，狀態碼: %d", resp.StatusCode)
 	}
 	operationURL := resp.Header.Get("Operation-Location")
-	resp.Body.Close()
-
 	// 輪詢處理結果
 	var result readResultResponse
 	found := false
