@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"line-translate-bot/internal/vision"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +33,8 @@ func main() {
 	token := os.Getenv("LINE_CHANNEL_ACCESS_TOKEN")
 	azureKey := os.Getenv("AZURE_API_KEY")
 	azureRegion := os.Getenv("AZURE_API_REGION")
+	azureVisionEndpoint := os.Getenv("AZURE_VISION_ENDPOINT")
+	azureVisionKey := os.Getenv("AZURE_VISION_KEY")
 	if secret == "" || token == "" || azureKey == "" || azureRegion == "" {
 		if secret == "" {
 			log.Println("LINE_CHANNEL_SECRET 未設定")
@@ -59,9 +62,10 @@ func main() {
 	// 依賴注入
 	cmdService := service.NewCommandService(repo)
 	transService := service.NewTranslationService(repo, trans)
-
+	// Vision Service
+	visionSvc := vision.NewAzureVision(azureVisionEndpoint, azureVisionKey)
 	// 初始化接收層 (Handler)
-	lineHandler := handler.NewLineHandler(bot, cmdService, transService)
+	lineHandler := handler.NewLineHandler(bot, cmdService, transService, visionSvc)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
