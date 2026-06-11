@@ -9,6 +9,9 @@
 <a href="LICENSE">
   <img src="https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge" alt="License">
 </a>
+<a href="https://lingobot-web.vercel.app/">
+  <img src="https://img.shields.io/badge/status-production-brightgreen.svg?style=for-the-badge" alt="Status">
+</a>
 </div>
 
 ---
