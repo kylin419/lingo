@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"line-translate-bot/internal/repository"
@@ -40,6 +41,7 @@ func (s *TranslationService) HandleMessage(groupID string, text string) (string,
 func (s *TranslationService) TranslateMessage(sourceID string, text string) (string, error) {
 	// 偵測原始語言
 	sourceLang, err := s.trans.DetectLanguage(text)
+	log.Printf("DEBUG: 原文 [%s] 被偵測為語言代碼 [%s]", text, sourceLang)
 	if err != nil {
 		sourceLang = "" // 如果偵測失敗，將原始語言設為空字串，讓後續過濾邏輯能正常運作
 	}
@@ -60,10 +62,9 @@ func (s *TranslationService) TranslateMessage(sourceID string, text string) (str
 	var replies []string
 	for _, lang := range langs {
 		// 如果目標語言與原始語言相同，就跳過
-		if lang == sourceLang {
+		if translator.GetLangFamily(lang) == translator.GetLangFamily(sourceLang) {
 			continue
 		}
-
 		if translatedText, ok := results[lang]; ok {
 			replies = append(replies, fmt.Sprintf("[%s] %s", lang, translatedText))
 		}

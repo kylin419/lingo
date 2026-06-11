@@ -13,7 +13,7 @@ import (
 	"line-translate-bot/internal/translator"
 
 	"github.com/joho/godotenv"
-	"github.com/line/line-bot-sdk-go/v8/linebot"
+	"github.com/line/line-bot-sdk-go/v8/linebot/messaging_api"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -55,7 +55,8 @@ func main() {
 	// 初始化 Azure 翻譯引擎
 	trans := translator.NewAzureTranslator(azureKey, azureRegion)
 	// 初始化 LINE Bot
-	bot, err := linebot.New(secret, token)
+	bot, err := messaging_api.NewMessagingApiAPI(token)
+	blobbot, err := messaging_api.NewMessagingApiBlobAPI(token)
 	if err != nil {
 		log.Fatal("LINE Bot 初始化失敗: ", err)
 	}
@@ -65,7 +66,7 @@ func main() {
 	// Vision Service
 	visionSvc := vision.NewAzureVision(azureVisionEndpoint, azureVisionKey)
 	// 初始化接收層 (Handler)
-	lineHandler := handler.NewLineHandler(bot, cmdService, transService, visionSvc)
+	lineHandler := handler.NewLineHandler(bot, blobbot, cmdService, transService, visionSvc)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
