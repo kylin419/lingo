@@ -1,7 +1,7 @@
 # Lingo Bot
 
-[![Go Version](https://img.shields.io/github/go-mod/go-version/kylin419/lingo?style=flat-square)](https://go.dev/)
-[![License](https://img.shields.io/github/license/kylin419/lingo?style=flat-square)](LICENSE)
+[![Go Version](https://img.shields.io/badge/go-1.22+-blue.svg?style=flat-square)](https://go.dev/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 
 **Lingo Bot** 是一款專為跨語言溝通與圖像文字數位化打造的智慧機器人。透過整合頂尖的翻譯引擎與 OCR 辨識技術，為使用者提供即時、精準的多語言解決方案。
 
